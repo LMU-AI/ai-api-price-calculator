@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Token 价格对比计算器 | Claude API 中转站横向比价</title>
+<meta name="description" content="对比灵眸AI、神马中转、laozhang.ai、AIHubMix、OpenRouter 等 8 个 Claude API 中转站的 token 实际费用。统一换算为 ¥/百万 token，支持 Prompt Cache、月费估算，帮你找到最划算的 Claude API 接入方式。">
+<meta name="keywords" content="Claude API 中转站,Claude API 价格,token 价格对比,AI API 价格计算器,灵眸AI,神马中转,laozhang.ai,AIHubMix,OpenRouter,Claude Opus 价格,Anthropic API 中转,prompt cache 价格,Claude Code 接入">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://calc.lmu.ai">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://calc.lmu.ai">
+<meta property="og:title" content="Token 价格对比计算器 | Claude API 中转站横向比价">
+<meta property="og:description" content="对比 8 个 Claude API 中转站真实费用，统一换算 ¥/百万 token，支持 Cache 与月费估算。">
+<meta property="og:locale" content="zh_CN">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Token 价格对比计算器 | Claude API 中转站横向比价">
+<meta name="twitter:description" content="对比 8 个 Claude API 中转站真实费用，统一换算 ¥/百万 token，支持 Cache 与月费估算。">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"Token 价格对比计算器","url":"https://calc.lmu.ai","description":"对比灵眸AI、神马中转等 Claude API 中转站 token 实际费用","applicationCategory":"UtilityApplication","operatingSystem":"Any","inLanguage":"zh-CN","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"}}
+</script>
+<style>
+:root {
+  --blue:#0071e3; --blue-hover:#0077ed; --blue-dark:#2997ff;
+  --link-light:#0066cc; --black:#000; --near-black:#1d1d1f;
+  --light-gray:#f5f5f7; --white:#fff; --text-body:rgba(0,0,0,.8);
+  --text-sec:rgba(0,0,0,.48); --border-btn:rgba(0,0,0,.04);
+  --btn-light:#fafafc; --shadow-card:rgba(0,0,0,.22) 3px 5px 30px 0px;
+  --surface-dk1:#272729;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'SF Pro Text','SF Pro Display',-apple-system,BlinkMacSystemFont,'Helvetica Neue',Helvetica,Arial,sans-serif;background:var(--light-gray);color:var(--near-black);font-size:17px;line-height:1.47;letter-spacing:-.374px;-webkit-font-smoothing:antialiased}
+
+/* Nav */
+.nav{position:sticky;top:0;z-index:100;height:48px;background:rgba(0,0,0,.8);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);display:flex;align-items:center;justify-content:space-between;padding:0 22px}
+.nav-brand{font-size:17px;font-weight:600;color:var(--white);letter-spacing:-.374px;text-decoration:none}
+.nav-actions{display:flex;gap:20px;align-items:center}
+.nav-link{font-size:12px;color:rgba(255,255,255,.8);text-decoration:none;letter-spacing:normal;transition:color .15s;cursor:pointer;background:none;border:none;font-family:inherit;padding:0}
+.nav-link:hover{color:var(--white)}
+
+/* Lang Switcher */
+.lang-switcher{position:relative}
+.lang-btn{font-size:12px;color:rgba(255,255,255,.8);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:6px;padding:4px 10px;cursor:pointer;font-family:inherit;letter-spacing:normal;transition:background .15s;white-space:nowrap}
+.lang-btn:hover{background:rgba(255,255,255,.16);color:var(--white)}
+.lang-menu{position:absolute;top:calc(100% + 8px);right:0;background:#1c1c1e;border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:5px;min-width:130px;display:none;z-index:200;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.lang-menu.open{display:block}
+.lang-opt{display:block;width:100%;padding:7px 12px;font-size:13px;color:rgba(255,255,255,.75);cursor:pointer;border-radius:6px;background:none;border:none;text-align:left;font-family:inherit;letter-spacing:normal;transition:background .1s,color .1s}
+.lang-opt:hover{background:rgba(255,255,255,.1);color:var(--white)}
+.lang-opt.active{color:#2997ff}
+
+/* Hero */
+.hero{background:var(--black);padding:80px 22px 72px;text-align:center}
+.hero-eyebrow{font-size:14px;font-weight:400;color:var(--blue-dark);letter-spacing:-.224px;margin-bottom:12px}
+.hero h1{font-family:'SF Pro Display',-apple-system,'Helvetica Neue',sans-serif;font-size:56px;font-weight:600;color:var(--white);line-height:1.07;letter-spacing:-.28px;margin-bottom:16px}
+.hero-sub{font-size:21px;font-weight:400;color:rgba(255,255,255,.7);line-height:1.19;letter-spacing:.231px;margin-bottom:36px;max-width:540px;margin-left:auto;margin-right:auto}
+.hero-ctas{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.cta-primary{background:var(--blue);color:var(--white);border:1px solid transparent;border-radius:8px;padding:8px 18px;font-size:17px;font-weight:400;cursor:pointer;font-family:inherit;letter-spacing:-.374px;transition:background .15s;text-decoration:none;display:inline-block}
+.cta-primary:hover{background:var(--blue-hover)}
+.cta-pill{display:inline-flex;align-items:center;gap:4px;color:var(--blue-dark);border:1px solid rgba(255,255,255,.25);border-radius:980px;padding:8px 18px;font-size:17px;font-weight:400;cursor:pointer;font-family:inherit;background:transparent;letter-spacing:-.374px;transition:border-color .15s;text-decoration:none}
+.cta-pill:hover{border-color:rgba(255,255,255,.5)}
+
+/* Content */
+.content{max-width:980px;margin:0 auto;padding:48px 22px 80px}
+.section-label{font-family:'SF Pro Display',-apple-system,'Helvetica Neue',sans-serif;font-size:28px;font-weight:600;color:var(--near-black);line-height:1.14;letter-spacing:-.28px;margin-bottom:6px}
+.section-desc{font-size:14px;color:var(--text-sec);letter-spacing:-.224px;margin-bottom:20px}
+.card{background:var(--white);border-radius:8px;padding:24px 24px 20px;margin-bottom:16px;box-shadow:var(--shadow-card)}
+.card-title{font-size:12px;font-weight:600;color:var(--text-sec);text-transform:uppercase;letter-spacing:.6px;margin-bottom:18px;line-height:1.33}
+
+/* Settings */
+.settings-row{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end}
+.field-group{display:flex;flex-direction:column;gap:5px}
+.field-group label{font-size:12px;color:var(--text-sec);letter-spacing:-.12px;line-height:1.33}
+.field-group input[type=number],.field-group input[type=text],.field-group select{border:3px solid var(--border-btn);border-radius:11px;padding:7px 12px;font-size:14px;width:130px;outline:none;color:var(--near-black);background:var(--btn-light);font-family:inherit;letter-spacing:-.224px;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none}
+.field-group input:focus,.field-group select:focus{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue);background:var(--white)}
+.inline-row{display:flex;align-items:center;gap:8px}
+.inline-row input{width:80px}
+.field-hint{font-size:12px;color:var(--text-sec);letter-spacing:-.12px}
+
+/* Platform List */
+.platform-list{display:flex;flex-direction:column}
+.plist-header{display:grid;grid-template-columns:28px minmax(80px,1.2fr) minmax(110px,1.5fr) minmax(40px,.65fr) minmax(40px,.65fr) minmax(40px,.65fr) minmax(40px,.65fr) minmax(40px,.65fr) 48px;gap:0;padding:8px 12px;border-bottom:1px solid rgba(0,0,0,.12);margin-bottom:4px}
+.plist-header span{font-size:11px;font-weight:600;color:var(--text-sec);letter-spacing:-.12px;text-align:right;padding:0 8px}
+.plist-header span:nth-child(1){text-align:left}
+.plist-header span:nth-child(2){text-align:left}
+.plist-header span:last-child{text-align:center}
+.prow{border-bottom:1px solid rgba(0,0,0,.05);transition:background .08s}
+.prow:last-child{border-bottom:none}
+.prow:hover .prow-main{background:var(--light-gray)}
+.prow-main{display:grid;grid-template-columns:28px minmax(80px,1.2fr) minmax(110px,1.5fr) minmax(40px,.65fr) minmax(40px,.65fr) minmax(40px,.65fr) minmax(40px,.65fr) minmax(40px,.65fr) 48px;gap:0;align-items:center;padding:6px 12px;min-height:44px;border-radius:6px;cursor:default;transition:background .08s}
+.prow-drag{color:var(--text-sec);font-size:14px;cursor:grab;text-align:center;opacity:.4;user-select:none}
+.pcell{padding:0 5px}
+.pcell input[type=text],.pcell input[type=number]{width:100%;border:1px solid #91918c;border-radius:16px;padding:7px 7px;font-size:12px;font-family:inherit;color:#211922;background:#fff;outline:none;letter-spacing:-.224px;text-align:right;transition:border-color .12s,box-shadow .12s;box-sizing:border-box}
+.pcell input[type=text]{text-align:left;font-weight:600}
+.pcell input:focus{border-color:#435ee5;box-shadow:0 0 0 3px rgba(67,94,229,.18)}
+.cur-seg{display:flex;border-radius:16px;overflow:hidden;border:1px solid #91918c;flex-shrink:0}
+.cur-seg label{font-size:11px;padding:5px 9px;cursor:pointer;color:#62625b;user-select:none;transition:background .12s,color .12s}
+.cur-seg input[type=radio]{display:none}
+.cur-seg input[type=radio]:checked+label{background:#435ee5;color:#fff}
+.pcell-cur{padding:0 5px;display:flex;align-items:center;gap:6px}
+.rate-mini{font-size:11px;color:#62625b;display:flex;align-items:center;gap:4px;flex-shrink:0}
+.rate-mini input{width:64px!important;font-size:11px!important;padding:5px 7px!important;border:1px solid #91918c!important;border-radius:12px!important;background:#fff!important;text-align:center!important;outline:none!important}
+.rate-mini input:focus{border-color:#435ee5!important;box-shadow:0 0 0 3px rgba(67,94,229,.18)!important}
+.prow-actions{display:flex;align-items:center;justify-content:center;gap:4px;padding:0 6px}
+.del-btn{background:none;border:none;cursor:pointer;font-size:13px;padding:5px 7px;border-radius:50%;color:var(--text-sec);transition:background .12s,color .12s;line-height:1}
+.del-btn:hover{background:rgba(255,59,48,.1);color:#ff3b30}
+
+/* Platform links */
+.prow-url-btn{flex-shrink:0;color:var(--text-sec);text-decoration:none;font-size:12px;opacity:.4;transition:opacity .12s,color .12s;line-height:1}
+.prow-url-btn:hover{opacity:1;color:var(--blue)}
+.platform-link{color:inherit;text-decoration:none}
+.platform-link:hover{color:var(--blue)}
+.platform-link:hover .ext-icon{opacity:.9}
+.ext-icon{font-size:10px;opacity:.3;margin-left:3px;transition:opacity .12s}
+
+/* Add Platform */
+.add-platform-btn{width:100%;border:1.5px dashed rgba(0,0,0,.14);border-radius:8px;padding:14px;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;color:var(--link-light);font-size:13px;font-family:inherit;background:transparent;letter-spacing:-.224px;transition:all .15s;margin-top:8px}
+.add-platform-btn:hover{border-color:var(--blue);background:rgba(0,113,227,.04)}
+
+/* Results */
+.results-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px}
+.export-group{display:flex;gap:8px}
+.pill-btn{display:inline-flex;align-items:center;gap:5px;color:var(--link-light);border:1px solid var(--link-light);border-radius:980px;padding:5px 14px;font-size:12px;font-weight:400;cursor:pointer;font-family:inherit;background:transparent;letter-spacing:-.12px;transition:background .12s,color .12s;white-space:nowrap}
+.pill-btn:hover{background:var(--blue);color:var(--white);border-color:var(--blue)}
+.reset-pill{font-size:12px;color:var(--text-sec);background:none;border:none;cursor:pointer;font-family:inherit;letter-spacing:-.12px;padding:5px 0;transition:color .12s}
+.reset-pill:hover{color:#ff3b30}
+
+/* Table */
+.table-wrap{overflow-x:auto;margin:0 -24px;padding:0 24px}
+table{width:100%;border-collapse:collapse;font-size:14px;letter-spacing:-.224px}
+thead th{background:var(--light-gray);padding:10px 14px;text-align:left;font-size:12px;font-weight:600;color:var(--text-sec);border-bottom:1px solid rgba(0,0,0,.1);white-space:nowrap;letter-spacing:-.12px}
+thead th.sortable{cursor:pointer;user-select:none}
+thead th.sortable:hover{color:var(--near-black)}
+thead th .sort-icon{margin-left:3px;opacity:.4}
+thead th.sort-active{color:var(--blue)}
+thead th.sort-active .sort-icon{opacity:1}
+tbody tr{border-bottom:1px solid rgba(0,0,0,.05);transition:background .08s}
+tbody tr:hover{background:var(--light-gray)}
+tbody td{padding:11px 14px;color:var(--near-black)}
+tbody td.num{font-variant-numeric:tabular-nums;font-family:'SF Mono','Menlo',Monaco,monospace;font-size:13px;letter-spacing:0}
+.rank-cell{font-size:15px;text-align:center;width:40px}
+.platform-name{font-weight:600;color:var(--near-black);letter-spacing:-.224px}
+.price-best{color:#30d158;font-weight:700}
+.price-worst{color:#ff3b30}
+.price-na{color:rgba(0,0,0,.25)}
+.empty-state{text-align:center;padding:48px;color:var(--text-sec);font-size:17px}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface-dk1);color:rgba(255,255,255,.9);padding:10px 18px;border-radius:8px;font-size:14px;letter-spacing:-.224px;opacity:0;transform:translateY(8px);transition:opacity .2s,transform .2s;pointer-events:none;z-index:9999}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* Divider */
+.section-divider{height:1px;background:rgba(0,0,0,.08);margin:32px 0}
+
+/* Scenario hint */
+#scenarioHint{font-size:12px;color:var(--text-sec);align-self:flex-end;padding-bottom:8px;letter-spacing:-.12px}
+
+/* Pain Points */
+.pain-points{display:flex;gap:10px 32px;justify-content:center;flex-wrap:wrap;margin:28px auto 0;max-width:720px}
+.pain-item{display:flex;align-items:flex-start;gap:8px}
+.pain-dot{width:5px;height:5px;border-radius:50%;background:var(--blue-dark);flex-shrink:0;margin-top:8px}
+.pain-item span{font-size:13px;color:rgba(255,255,255,.52);line-height:1.45;letter-spacing:-.1px}
+
+/* Result Insight */
+.result-insight{font-size:13px;color:var(--text-sec);margin-bottom:14px;letter-spacing:-.12px}
+.result-insight a{color:var(--blue);text-decoration:none;font-weight:600}
+.result-insight a:hover{text-decoration:underline}
+
+/* FAQ */
+.faq-section h2{font-family:'SF Pro Display',-apple-system,'Helvetica Neue',sans-serif;font-size:21px;font-weight:600;color:var(--near-black);margin-bottom:4px;letter-spacing:-.28px}
+.faq-desc{font-size:13px;color:var(--text-sec);margin-bottom:16px;letter-spacing:-.12px}
+.faq-item{border-bottom:1px solid rgba(0,0,0,.06)}
+.faq-item:last-child{border-bottom:none}
+.faq-item summary{font-size:15px;font-weight:600;color:var(--near-black);padding:14px 0;cursor:pointer;letter-spacing:-.224px;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px;user-select:none}
+.faq-item summary::-webkit-details-marker{display:none}
+.faq-item summary::after{content:'+';font-size:20px;font-weight:300;color:var(--text-sec);flex-shrink:0}
+.faq-item[open] summary::after{content:'−'}
+.faq-body{font-size:14px;color:var(--text-body);line-height:1.65;padding-bottom:16px;letter-spacing:-.12px}
+.faq-body a{color:var(--blue);text-decoration:none}
+.faq-body a:hover{text-decoration:underline}
+.faq-body code{font-family:'SF Mono',Menlo,Monaco,monospace;font-size:12px;background:var(--light-gray);border-radius:4px;padding:1px 5px}
+
+@media(max-width:680px){
+  .hero h1{font-size:36px}
+  .hero-sub{font-size:17px}
+  .content{padding:32px 16px 60px}
+  .card{padding:18px 16px}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <span class="nav-brand" data-i18n="nav_brand">Token 价格计算器</span>
+  <div class="nav-actions">
+    <button class="nav-link" onclick="resetToDefaults()" style="color:#2997ff;font-weight:600" data-i18n="nav_reset">重置数据</button>
+    <button class="nav-link" onclick="exportMarkdown()" data-i18n="nav_copy">复制表格</button>
+    <button class="nav-link" onclick="exportCSV()" data-i18n="nav_csv">下载 CSV</button>
+    <div class="lang-switcher">
+      <button class="lang-btn" onclick="toggleLangMenu()" id="langBtn">中文 ▾</button>
+      <div class="lang-menu" id="langMenu"></div>
+    </div>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow" data-i18n="hero_eyebrow">Token · 价格透明</div>
+  <h1 data-i18n-html="hero_title">Token 价格<br>对比计算器</h1>
+  <p class="hero-sub" data-i18n="hero_sub">将 OpenAI、Anthropic、Google 等各平台复杂计费统一换算为 ¥/百万 token，一眼看清真实成本</p>
+  <div class="pain-points">
+    <div class="pain-item"><span class="pain-dot"></span><span data-i18n="pain1">各平台内部汇率差距超 3 倍，美元标价根本不能直接比</span></div>
+    <div class="pain-item"><span class="pain-dot"></span><span data-i18n="pain2">Cache 费用占实际成本 50%+，却极少被算进价格对比</span></div>
+    <div class="pain-item"><span class="pain-dot"></span><span data-i18n="pain3">充值前不知道月底真实花销，预算无从规划</span></div>
+  </div>
+  <div class="hero-ctas" style="margin-top:28px">
+    <a class="cta-primary" onclick="document.querySelector('.content').scrollIntoView({behavior:'smooth'})" data-i18n="cta_start">开始使用</a>
+    <button class="cta-pill" onclick="addPlatform()" data-i18n="cta_add">＋ 添加平台</button>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="card">
+    <div class="card-title" data-i18n="card_globals">全局参数</div>
+    <div class="settings-row">
+      <div class="field-group">
+        <label data-i18n="label_rate">市场参考汇率</label>
+        <div class="inline-row">
+          <span class="field-hint" data-i18n="hint_usd">1 USD =</span>
+          <input type="number" id="marketRate" value="7.27" step="0.01" min="1" max="20" style="width:90px">
+          <span class="field-hint" data-i18n="hint_cny">CNY</span>
+        </div>
+      </div>
+      <div class="field-group">
+        <label data-i18n="label_weight">输入 / 输出权重比</label>
+        <div class="inline-row">
+          <input type="number" id="inputWeight" value="30" min="0" max="100" style="width:68px">
+          <span class="field-hint">%  /</span>
+          <input type="number" id="outputWeight" value="70" min="0" max="100" style="width:68px" readonly>
+          <span class="field-hint">%</span>
+        </div>
+      </div>
+      <div class="field-group">
+        <label data-i18n="label_monthly">月用量估算（百万 token）</label>
+        <div class="inline-row">
+          <span class="field-hint" data-i18n="hint_input">输入</span>
+          <input type="number" id="monthlyInput" placeholder="0" min="0" step="0.1" style="width:80px">
+          <span class="field-hint" data-i18n="hint_output">输出</span>
+          <input type="number" id="monthlyOutput" placeholder="0" min="0" step="0.1" style="width:80px">
+        </div>
+      </div>
+      <div id="scenarioHint">填写月用量后显示月费估算列</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="display:flex;justify-content:space-between;align-items:center">
+      <span data-i18n="card_platforms">平台配置</span>
+      <button class="reset-pill" onclick="resetToDefaults()" style="color:var(--blue);font-weight:600" data-i18n="btn_reset_card">恢复默认数据</button>
+    </div>
+    <div class="platform-list" id="platformsGrid">
+      <div class="plist-header">
+        <span></span>
+        <span data-i18n="col_name">平台名称</span>
+        <span data-i18n="col_rate">汇率 ¥/$</span>
+        <span data-i18n="col_input">输入 $/M</span>
+        <span data-i18n="col_output">输出 $/M</span>
+        <span data-i18n="col_cread">Cache读 $/M</span>
+        <span data-i18n="col_cw5">写入5m $/M</span>
+        <span data-i18n="col_cw1h">写入1h $/M</span>
+        <span data-i18n="col_action">操作</span>
+      </div>
+    </div>
+    <button class="add-platform-btn" onclick="addPlatform()">
+      <span style="font-size:16px;line-height:1">＋</span>
+      <span data-i18n="btn_add">添加平台</span>
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="results-header">
+      <div>
+        <div class="section-label" style="font-size:21px;margin-bottom:2px" data-i18n="res_title">对比结果</div>
+        <div style="font-size:12px;color:var(--text-sec);letter-spacing:-.12px" data-i18n="res_desc">按加权均价从低到高排序 · 点击表头切换排序</div>
+      </div>
+      <div class="export-group">
+        <button class="pill-btn" onclick="exportMarkdown()" data-i18n="btn_copy_md">复制 Markdown</button>
+        <button class="pill-btn" onclick="exportCSV()" data-i18n="btn_csv">下载 CSV</button>
+      </div>
+    </div>
+    <div id="resultInsight" class="result-insight"></div>
+    <div class="table-wrap">
+      <table id="resultsTable">
+        <thead id="resultsHead"></thead>
+        <tbody id="resultsBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="faq-section" id="faqContainer"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── Default Data ─────────────────────────────────────────────────────────────
+const DEFAULT_PLATFORMS = [
+  { id:1, name:'灵眸AI',      url:'https://clawapi.fulitimes.com/register?ref=vJaWWr4T', currency:'USD', rate:2.4,  input:5,   output:25,   cacheRead:0.5,  cacheWrite5:6.25, cacheWrite1h:10,  collapsed:false },
+  { id:2, name:'神马中转API', url:'https://api.whatai.cc/register?aff=pMZ7125587',       currency:'USD', rate:2,    input:10,  output:50,   cacheRead:0.5,  cacheWrite5:6.25, cacheWrite1h:10,  collapsed:false },
+  { id:3, name:'PackyAPI',    url:'https://www.packyapi.com/register?aff=g5QU',          currency:'USD', rate:1,    input:30,  output:150,  cacheRead:1.2,  cacheWrite5:15,   cacheWrite1h:10,  collapsed:false },
+  { id:4, name:'poloapi',     url:'https://aihubmix.com/?aff=hC5M',                      currency:'USD', rate:7,    input:4.7, output:23.3, cacheRead:0.47, cacheWrite5:5.8,  cacheWrite1h:10,  collapsed:false },
+  { id:5, name:'laozhang.ai', url:'https://api.laozhang.ai/register/?aff_code=ZlNM',     currency:'USD', rate:7,    input:5,   output:25,   cacheRead:0.5,  cacheWrite5:6.25, cacheWrite1h:10,  collapsed:false },
+  { id:6, name:'apiyi',       url:'https://api.apiyi.com/',                              currency:'USD', rate:7,    input:5,   output:25,   cacheRead:0.5,  cacheWrite5:15,   cacheWrite1h:10,  collapsed:false },
+  { id:7, name:'AIHubMix',    url:'https://api.apiyi.com/register/?aff_code=QsuZ',       currency:'USD', rate:7.1,  input:5,   output:25,   cacheRead:0.5,  cacheWrite5:6.25, cacheWrite1h:10,  collapsed:false },
+  { id:8, name:'OpenRouter',  url:'https://openrouter.ai/',                              currency:'USD', rate:7.27, input:5,   output:25,   cacheRead:0.5,  cacheWrite5:6.25, cacheWrite1h:10,  collapsed:false },
+];
+
+// ─── i18n ─────────────────────────────────────────────────────────────────────
+const LANGS_META = [
+  {code:'zh',label:'中文'},{code:'en',label:'English'},{code:'ja',label:'日本語'},
+  {code:'ko',label:'한국어'},{code:'es',label:'Español'},{code:'fr',label:'Français'},
+  {code:'de',label:'Deutsch'},{code:'pt',label:'Português'},
+];
+
+const TRANSLATIONS = {
+  zh:{
+    nav_brand:'Token 价格计算器',nav_reset:'重置数据',nav_copy:'复制表格',nav_csv:'下载 CSV',
+    hero_eyebrow:'Token · 价格透明',hero_title:'Token 价格<br>对比计算器',
+    hero_sub:'将 OpenAI、Anthropic、Google 等各平台复杂计费统一换算为 ¥/百万 token，一眼看清真实成本',
+    pain1:'各平台内部汇率差距超 3 倍，美元标价根本不能直接比',
+    pain2:'Cache 费用占实际成本 50%+，却极少被算进价格对比',
+    pain3:'充值前不知道月底真实花销，预算无从规划',
+    cta_start:'开始使用',cta_add:'＋ 添加平台',
+    card_globals:'全局参数',card_platforms:'平台配置',
+    label_rate:'市场参考汇率',label_weight:'输入 / 输出权重比',label_monthly:'月用量估算（百万 token）',
+    hint_usd:'1 USD =',hint_cny:'CNY',hint_input:'输入',hint_output:'输出',
+    scenario_empty:'填写月用量后显示月费估算列',scenario_fmt:'月费 = 输入¥ × {mi}M + 输出¥ × {mo}M',
+    col_name:'平台名称',col_rate:'汇率 ¥/$',col_input:'输入 $/M',col_output:'输出 $/M',
+    col_cread:'Cache读 $/M',col_cw5:'写入5m $/M',col_cw1h:'写入1h $/M',col_action:'操作',
+    btn_add:'添加平台',btn_reset_card:'恢复默认数据',
+    res_title:'对比结果',res_desc:'按加权均价从低到高排序 · 点击表头切换排序',
+    btn_copy_md:'复制 Markdown',btn_csv:'下载 CSV',
+    th_platform:'平台',th_input:'输入 ¥/M',th_output:'输出 ¥/M',
+    th_cread:'Cache读 ¥/M',th_cw5:'Cache写5m ¥/M',th_cw1h:'Cache写1h ¥/M',
+    th_weighted:'加权均价 ¥/M',th_monthly:'月费估算 ¥',
+    empty_state:'暂无平台数据 — 点击上方「添加平台」开始',
+    insight_prefix:'当前最低价：',insight_suffix:'，约为官方 API 直连的',
+    new_platform:'新平台',del_title:'删除',visit_site:'访问官网',
+    toast_md:'Markdown 表格已复制',toast_csv:'CSV 已下载',toast_copied:'已复制',toast_restored:'已恢复默认数据',
+    faq_title:'常见问题',faq_desc:'关于 Claude API 中转站选择、计费逻辑与接入方式',
+    faq_q1:'Claude API 中转站哪个最便宜？',
+    faq_a1:'截至 2026 年 4 月，<a href="https://clawapi.fulitimes.com/register?ref=vJaWWr4T" target="_blank" rel="noopener">灵眸AI</a> 以内部汇率 ¥2.4/$ 折算，Claude Opus 4.7 加权均价约 ¥45.6/百万 token，是本页对比平台中最低的，约为官方 API 直连价格的 33%。可在上方计算器自行填入最新数据验证。',
+    faq_q2:'内部汇率是什么意思？为什么比美元标价更重要？',
+    faq_a2:'中转平台通常以人民币充值，但按美元计费扣额度。内部汇率决定了充值 ¥100 能换到多少美元额度：汇率 ¥2.4/$ 的平台充 ¥100 能获得约 $41.7 额度，而汇率 ¥7/$ 的平台只有约 $14.3 额度——同样充 ¥100，实际可用 token 相差近 3 倍。因此对比价格必须看换算后的 ¥/百万 token，而非美元标价。',
+    faq_q3:'Prompt Cache 对实际成本影响有多大？',
+    faq_a3:'Claude Code 每次请求都会携带完整系统提示词，不走缓存则全额计费。启用 Prompt Cache 后，缓存命中只收取 Cache 读取费（通常为输入价格的 10%），可将 Claude Code 的实际 token 成本降低 50%–70%。<a href="https://clawapi.fulitimes.com/register?ref=vJaWWr4T" target="_blank" rel="noopener">灵眸AI</a> 同时支持 5 分钟和 1 小时两档缓存。',
+    faq_q4:'Claude Code 如何接入中转站？',
+    faq_a4:'大多数中转站兼容 Anthropic 官方 API 格式，编辑 <code>~/.claude/settings.json</code>，加入以下内容即可：<br><br><code>{ "env": { "ANTHROPIC_BASE_URL": "平台地址", "ANTHROPIC_AUTH_TOKEN": "你的Key" } }</code><br><br>以<a href="https://clawapi.fulitimes.com/register?ref=vJaWWr4T" target="_blank" rel="noopener">灵眸AI</a>为例，将 <code>ANTHROPIC_BASE_URL</code> 设为平台提供的接口地址，<code>ANTHROPIC_AUTH_TOKEN</code> 填入控制台的 API Key，重启 Claude Code 即可生效。',
+    faq_q5:'Claude API 中转站安全可靠吗？如何识别模型掺假？',
+    faq_a5:'主要风险点：① 用低价模型替换 Claude（模型掺假）② 逆向接口随时可能失效 ③ 数据经中转站传输存在隐私风险。简单自测方法：询问"你是哪个模型，训练截止日期是什么"，或用有标准答案的数学题对比官方 Claude 的输出。选择明确标注模型版本和更新日期的平台，风险相对更低。',
+  },
+  en:{
+    nav_brand:'Token Price Calculator',nav_reset:'Reset',nav_copy:'Copy Table',nav_csv:'Download CSV',
+    hero_eyebrow:'Token · Price Transparency',hero_title:'Token Price<br>Comparison',
+    hero_sub:'Convert complex billing across OpenAI, Anthropic, Google and more into unified ¥/M tokens — see real costs at a glance',
+    pain1:'Internal exchange rates vary 3×+ — USD pricing is misleading',
+    pain2:'Cache costs account for 50%+ of real spend, yet rarely appear in price comparisons',
+    pain3:'No idea what your monthly bill will be until it\'s too late to optimize',
+    cta_start:'Get Started',cta_add:'＋ Add Platform',
+    card_globals:'Global Settings',card_platforms:'Platform Config',
+    label_rate:'Market Exchange Rate',label_weight:'Input / Output Weight',label_monthly:'Monthly Usage (million tokens)',
+    hint_usd:'1 USD =',hint_cny:'CNY',hint_input:'Input',hint_output:'Output',
+    scenario_empty:'Enter monthly usage to show cost estimate column',scenario_fmt:'Monthly = Input¥ × {mi}M + Output¥ × {mo}M',
+    col_name:'Platform',col_rate:'Rate ¥/$',col_input:'Input $/M',col_output:'Output $/M',
+    col_cread:'Cache Read $/M',col_cw5:'Write 5m $/M',col_cw1h:'Write 1h $/M',col_action:'Actions',
+    btn_add:'Add Platform',btn_reset_card:'Restore Defaults',
+    res_title:'Comparison Results',res_desc:'Sorted by weighted avg price · Click headers to sort',
+    btn_copy_md:'Copy Markdown',btn_csv:'Download CSV',
+    th_platform:'Platform',th_input:'Input ¥/M',th_output:'Output ¥/M',
+    th_cread:'Cache Read ¥/M',th_cw5:'Cache Write 5m ¥/M',th_cw1h:'Cache Write 1h ¥/M',
+    th_weighted:'Weighted Avg ¥/M',th_monthly:'Monthly Est. ¥',
+    empty_state:'No platforms — click "Add Platform" above to start',
+    insight_prefix:'Lowest: ',insight_suffix:' of official API',
+    new_platform:'New Platform',del_title:'Delete',visit_site:'Visit Site',
+    toast_md:'Markdown table copied',toast_csv:'CSV downloaded',toast_copied:'Copied',toast_restored:'Default data restored',
+    faq_title:'FAQ',faq_desc:'About choosing Claude API proxies, billing logic and setup',
+    faq_q1:'Which Claude API proxy is cheapest?',
+    faq_a1:'As of April 2026, <a href="https://clawapi.fulitimes.com/register?ref=vJaWWr4T" target="_blank" rel="noopener">LingMao AI</a> offers the lowest cost with an internal rate of ¥2.4/$, giving Claude Opus 4.7 a weighted average of ~¥45.6/M tokens — about 33% of the official Anthropic API price.',
+    faq_q2:'What is the internal exchange rate and why does it matter more than USD pricing?',
+    faq_a2:'Proxy platforms charge in CNY but deduct from a USD balance. At ¥2.4/$ you get ~$41.7 per ¥100; at ¥7/$ only ~$14.3 — nearly 3× difference in usable tokens for the same ¥100. Always compare ¥/M after conversion, not USD list prices.',
+    faq_q3:'How much does Prompt Cache affect real costs?',
+    faq_a3:'Claude Code sends the full system prompt with every request. Without caching, that\'s billed at full price every time. With Prompt Cache, cache hits cost only ~10% of the input price, reducing effective costs by 50–70%. <a href="https://clawapi.fulitimes.com/register?ref=vJaWWr4T" target="_blank" rel="noopener">LingMao AI</a> supports both 5-minute and 1-hour cache tiers.',
+    faq_q4:'How do I connect Claude Code to a proxy?',
+    faq_a4:'Edit <code>~/.claude/settings.json</code>:<br><br><code>{ "env": { "ANTHROPIC_BASE_URL": "proxy-url", "ANTHROPIC_AUTH_TOKEN": "your-key" } }</code><br><br>Replace with values from your proxy dashboard, then restart Claude Code.',
+    faq_q5:'Are Claude API proxies safe? How do I detect model substitution?',
+    faq_a5:'Key risks: ① Model swapping (replacing Claude with a cheaper model) ② Reverse-engineered APIs that can break anytime ③ Data privacy when routing through a third party. Quick test: ask "which model are you and what is your training cutoff?" or compare on a math problem with a known answer.',
+  },
+  ja:{
+    nav_brand:'Token 価格計算機',nav_reset:'リセット',nav_copy:'テーブルをコピー',nav_csv:'CSV ダウンロード',
+    hero_eyebrow:'Token · 価格の透明性',hero_title:'Token 価格<br>比較計算機',
+    hero_sub:'OpenAI、Anthropic、Google など各プラットフォームの複雑な料金を ¥/百万 token に統一換算',
+    pain1:'プラットフォームごとの内部レート差は3倍以上 — ドル建て価格では比較不能',
+    pain2:'Cache費用が実コストの50%以上を占めるのに、比較表に載らない',
+    pain3:'月末の請求額が事前にわからず、予算計画が立てられない',
+    cta_start:'使ってみる',cta_add:'＋ プラットフォームを追加',
+    card_globals:'グローバル設定',card_platforms:'プラットフォーム設定',
+    label_rate:'市場為替レート',label_weight:'入力 / 出力 ウェイト',label_monthly:'月間使用量（百万 token）',
+    hint_usd:'1 USD =',hint_cny:'CNY',hint_input:'入力',hint_output:'出力',
+    scenario_empty:'月間使用量を入力すると月額見積もり列が表示されます',scenario_fmt:'月額 = 入力¥ × {mi}M + 出力¥ × {mo}M',
+    col_name:'プラットフォーム名',col_rate:'レート ¥/$',col_input:'入力 $/M',col_output:'出力 $/M',
+    col_cread:'Cache読 $/M',col_cw5:'書込5m $/M',col_cw1h:'書込1h $/M',col_action:'操作',
+    btn_add:'プラットフォームを追加',btn_reset_card:'デフォルトに戻す',
+    res_title:'比較結果',res_desc:'加重平均価格の低い順に並べ替え · ヘッダークリックで並び替え',
+    btn_copy_md:'Markdown をコピー',btn_csv:'CSV ダウンロード',
+    th_platform:'プラットフォーム',th_input:'入力 ¥/M',th_output:'出力 ¥/M',
+    th_cread:'Cache読 ¥/M',th_cw5:'Cache書5m ¥/M',th_cw1h:'Cache書1h ¥/M',
+    th_weighted:'加重平均 ¥/M',th_monthly:'月額見積 ¥',
+    empty_state:'プラットフォームなし — 上の「プラットフォームを追加」をクリック',
+    insight_prefix:'最安値：',insight_suffix:' 公式 API 比',
+    new_platform:'新しいプラットフォーム',del_title:'削除',visit_site:'公式サイト',
+    toast_md:'Markdown テーブルをコピーしました',toast_csv:'CSV をダウンロードしました',toast_copied:'コピーしました',toast_restored:'デフォルトデータを復元しました',
+    faq_title:'よくある質問',faq_desc:'Claude API プロキシの選び方、料金体系、接続方法について',
+    faq_q1:'Claude API プロキシで最も安いのはどれですか？',
+    faq_a1:'2026年4月時点では、<a href="https://clawapi.fulitimes.com/register?ref=vJaWWr4T" target="_blank" rel="noopener">LingMao AI</a> が内部レート ¥2.4/$ で Claude Opus 4.7 の加重平均 ~¥45.6/M token を実現しており、公式 API の約33%のコストです。',
+    faq_q2:'内部為替レートとは何ですか？',
+    faq_a2:'プロキシは円建て入金でもドル残高から差し引かれます。¥2.4/$ なら¥100で$41.7相当ですが、¥7/$ では$14.3のみ。同じ¥100でトークン量が3倍近く変わります。必ず¥/M換算後で比較してください。',
+    faq_q3:'Prompt Cache は実際のコストにどう影響しますか？',
+    faq_a3:'Claude Code は毎リクエストにシステムプロンプト全体を送信します。キャッシュなしでは毎回全額請求されます。Prompt Cache を有効にするとキャッシュヒット時のコストは入力価格の約10%になり、実質コストを50〜70%削減できます。<a href="https://clawapi.fulitimes.com/register?ref=vJaWWr4T" target="_blank" rel="noopener">LingMao AI</a> は5分・1時間の2段階キャッシュをサポートしています。',
+    faq_q4:'Claude Code をプロキシに接続するには？',
+    faq_a4:'<code>~/.claude/settings.json</code> を編集してください：<br><br><code>{ "env": { "ANTHROPIC_BASE_URL": "プロキシURL", "ANTHROPIC_AUTH_TOKEN": "APIキー" } }</code><br><br>URLとキーをダッシュボードの値に置き換えて、Claude Code を再起動してください。',
+    faq_q5:'Claude API プロキシは安全ですか？',
+    faq_a5:'主なリスク：① モデル偽装（安価なモデルに差し替え） ② リバースAPI はいつでも停止する可能性 ③ サードパーティ経由のデータプライバシー。確認方法：「あなたはどのモデルで、学習のカットオフ日はいつですか？」と聞く、または公式 Claude と数学問題の答えを比較する。',
+  },
+  ko:{
+    nav_brand:'Token 가격 계산기',nav_reset:'초기화',nav_copy:'테이블 복사',nav_csv:'CSV 다운로드',
+    hero_eyebrow:'Token · 가격 투명성',hero_title:'Token 가격<br>비교 계산기',
+    hero_sub:'OpenAI, Anthropic, Google 등 각 플랫폼의 복잡한 요금을 ¥/백만 token으로 통합 환산',
+    pain1:'플랫폼별 내부 환율이 3배 이상 차이 — 달러 표시 가격으로는 비교 불가',
+    pain2:'Cache 비용이 실제 비용의 50%+ 차지하지만 가격 비교표에는 없음',
+    pain3:'월말 청구서가 얼마나 나올지 미리 알 수 없어 예산 계획 불가',
+    cta_start:'시작하기',cta_add:'＋ 플랫폼 추가',
+    card_globals:'전역 설정',card_platforms:'플랫폼 설정',
+    label_rate:'시장 환율',label_weight:'입력 / 출력 가중치',label_monthly:'월간 사용량 (백만 token)',
+    hint_usd:'1 USD =',hint_cny:'CNY',hint_input:'입력',hint_output:'출력',
+    scenario_empty:'월간 사용량 입력 시 월 요금 추정 열 표시',scenario_fmt:'월 요금 = 입력¥ × {mi}M + 출력¥ × {mo}M',
+    col_name:'플랫폼 이름',col_rate:'환율 ¥/$',col_input:'입력 $/M',col_output:'출력 $/M',
+    col_cread:'Cache읽기 $/M',col_cw5:'쓰기5m $/M',col_cw1h:'쓰기1h $/M',col_action:'작업',
+    btn_add:'플랫폼 추가',btn_reset_card:'기본값 복원',
+    res_title:'비교 결과',res_desc:'가중 평균 가격 낮은 순 정렬 · 헤더 클릭으로 정렬 변경',
+    btn_copy_md:'Markdown 복사',btn_csv:'CSV 다운로드',
+    th_platform:'플랫폼',th_input:'입력 ¥/M',th_output:'출력 ¥/M',
+    th_cread:'Cache읽기 ¥/M',th_cw5:'Cache쓰기5m ¥/M',th_cw1h:'Cache쓰기1h ¥/M',
+    th_weighted:'가중 평균 ¥/M',th_monthly:'월 추정 ¥',
+    empty_state:'플랫폼 없음 — 위의 "플랫폼 추가"를 클릭하세요',
+    insight_prefix:'최저가：',insight_suffix:' 공식 API 대비',
+    new_platform:'새 플랫폼',del_title:'삭제',visit_site:'공식 사이트',
+    toast_md:'Markdown 테이블 복사됨',toast_csv:'CSV 다운로드됨',toast_copied:'복사됨',toast_restored:'기본 데이터 복원됨',
+    faq_title:'자주 묻는 질문',faq_desc:'Claude API 프록시 선택, 과금 방식 및 연결 방법에 대해',
+    faq_q1:'Claude API 프록시 중 가장 저렴한 것은?',
+    faq_a1:'2026년 4월 기준, <a href="https://clawapi.fulitimes.com/register?ref=vJaWWr4T" target="_blank" rel="noopener">LingMao AI</a>가 내부 환율 ¥2.4/$로 Claude Opus 4.7 가중 평균 ~¥45.6/M token을 제공하며, 공식 API의 약 33% 비용입니다.',
+    faq_q2:'내부 환율이란 무엇인가요?',
+    faq_a2:'프록시는 원화 충전이지만 달러 잔액에서 차감됩니다. ¥2.4/$이면 ¥100으로 $41.7을 받지만, ¥7/$이면 $14.3만 받습니다 — 같은 ¥100으로 토큰 사용량이 3배 차이. 반드시 환산 후 ¥/M으로 비교하세요.',
+    faq_q3:'Prompt Cache는 실제 비용에 얼마나 영향을 미치나요?',
+    faq_a3:'Claude Code는 매 요청마다 전체 시스템 프롬프트를 전송합니다. 캐싱 없이는 매번 전액 청구됩니다. Prompt Cache 활성화 시 캐시 히트 비용은 입력 가격의 약 10%로, 실질 비용을 50~70% 절감할 수 있습니다. <a href="https://clawapi.fulitimes.com/register?ref=vJaWWr4T" target="_blank" rel="noopener">LingMao AI</a>는 5분·1시간 두 단계 캐시를 지원합니다.',
+    faq_q4:'Claude Code를 프록시에 연결하는 방법은?',
+    faq_a4:'<code>~/.claude/settings.json</code>을 편집하세요：<br><br><code>{ "env": { "ANTHROPIC_BASE_URL": "프록시URL", "ANTHROPIC_AUTH_TOKEN": "API키" } }</code><br><br>URL과 키를 대시보드 값으로 교체 후 Claude Code를 재시작하세요.',
+    faq_q5:'Claude API 프록시는 안전한가요?',
+    faq_a5:'주요 위험: ① 모델 위조(저렴한 모델로 교체) ② 리버스 API 갑작스러운 중단 ③ 제3자 경유 데이터 프라이버시. 간단한 확인법: "당신은 어떤 모델이고 학습 마감일은 언제인가요?"라고 묻거나, 정답이 있는 수학 문제로 공식 Claude와 비교하세요.',
+  },
+  es:{
+    nav_brand:'Calculadora de Precios Token',nav_reset:'Restablecer',nav_copy:'Copiar tabla',nav_csv:'Descargar CSV',
+    hero_eyebrow:'Token · Transparencia de precios',hero_title:'Comparador de<br>Precios Token',
+    hero_sub:'Convierte la compleja facturación de OpenAI, Anthropic, Google y más en ¥/M tokens unificados',
+    pain1:'Los tipos de cambio internos varían más de 3× — el precio en USD es engañoso',
+    pain2:'Los costes de Cache suponen el 50%+ del gasto real, pero no aparecen en las comparativas',
+    pain3:'No sabes cuánto pagarás a fin de mes hasta que ya es tarde',
+    cta_start:'Empezar',cta_add:'＋ Añadir plataforma',
+    card_globals:'Configuración global',card_platforms:'Configuración de plataformas',
+    label_rate:'Tipo de cambio de mercado',label_weight:'Peso entrada / salida',label_monthly:'Uso mensual (millones de tokens)',
+    hint_usd:'1 USD =',hint_cny:'CNY',hint_input:'Entrada',hint_output:'Salida',
+    scenario_empty:'Introduce el uso mensual para mostrar la columna de coste estimado',scenario_fmt:'Mensual = Entrada¥ × {mi}M + Salida¥ × {mo}M',
+    col_name:'Plataforma',col_rate:'Tipo ¥/$',col_input:'Entrada $/M',col_output:'Salida $/M',
+    col_cread:'Cache Lect. $/M',col_cw5:'Escritura 5m $/M',col_cw1h:'Escritura 1h $/M',col_action:'Acciones',
+    btn_add:'Añadir plataforma',btn_reset_card:'Restaurar predeterminados',
+    res_title:'Resultados',res_desc:'Ordenado por precio medio ponderado · Haz clic en el encabezado para ordenar',
+    btn_copy_md:'Copiar Markdown',btn_csv:'Descargar CSV',
+    th_platform:'Plataforma',th_input:'Entrada ¥/M',th_output:'Salida ¥/M',
+    th_cread:'Cache Lect. ¥/M',th_cw5:'Cache Escr.5m ¥/M',th_cw1h:'Cache Escr.1h ¥/M',
+    th_weighted:'Media ponderada ¥/M',th_monthly:'Est. mensual ¥',
+    empty_state:'Sin plataformas — haz clic en "Añadir plataforma" para comenzar',
+    insight_prefix:'Precio más bajo: ',insight_suffix:' de la API oficial',
+    new_platform:'Nueva plataforma',del_title:'Eliminar',visit_site:'Visitar sitio',
+    toast_md:'Tabla Markdown copiada',toast_csv:'CSV descargado',toast_copied:'Copiado',toast_restored:'Datos predeterminados restaurados',
+    faq_title:'Preguntas frecuentes',faq_desc:'Sobre la elección de proxies para Claude API, lógica de facturación y configuración',
+    faq_q1:'¿Cuál es el proxy de Claude API más barato?',
+    faq_a1:'A abril de 2026, <a href="https://clawapi.fulitimes.com/register?ref=vJaWWr4T" target="_blank" rel="noopener">LingMao AI</a> ofrece el menor coste con tipo interno ¥2.4/$, con una media ponderada de ~¥45.6/M tokens para Claude Opus 4.7 — aproximadamente el 33% del precio oficial.',
+    faq_q2:'¿Qué es el tipo de cambio interno?',
+    faq_a2:'Los proxies se recargan en CNY pero descuentan de un saldo en USD. Con ¥2.4/$ obtienes ~$41.7 por ¥100; con ¥7/$ solo ~$14.3 — casi 3× más tokens con el mismo presupuesto. Siempre compara en ¥/M tras la conversión.',
+    faq_q3:'¿Cuánto afecta Prompt Cache al coste real?',
+    faq_a3:'Claude Code envía el system prompt completo con cada solicitud. Sin caché, se factura al precio completo. Con Prompt Cache, los hits cuestan ~10% del precio de entrada, reduciendo el coste efectivo un 50–70%. <a href="https://clawapi.fulitimes.com/register?ref=vJaWWr4T" target="_blank" rel="noopener">LingMao AI</a> soporta caché de 5 min y 1 hora.',
+    faq_q4:'¿Cómo conecto Claude Code a un proxy?',
+    faq_a4:'Edita <code>~/.claude/settings.json</code>:<br><br><code>{ "env": { "ANTHROPIC_BASE_URL": "url-proxy", "ANTHROPIC_AUTH_TOKEN": "tu-clave" } }</code><br><br>Reemplaza con los valores de tu panel y reinicia Claude Code.',
+    faq_q5:'¿Son seguros los proxies de Claude API?',
+    faq_a5:'Riesgos principales: ① Sustitución de modelo ② APIs de ingeniería inversa que pueden fallar ③ Privacidad de datos al enrutar por terceros. Prueba rápida: pregunta "¿qué modelo eres y cuál es tu fecha de corte?" o compara en un problema matemático con respuesta conocida.',
+  },
+  fr:{
+    nav_brand:'Calculateur de Prix Token',nav_reset:'Réinitialiser',nav_copy:'Copier le tableau',nav_csv:'Télécharger CSV',
+    hero_eyebrow:'Token · Transparence des prix',hero_title:'Comparateur de<br>Prix Token',
+    hero_sub:'Convertissez la facturation complexe d\'OpenAI, Anthropic, Google en ¥/M tokens unifiés',
+    pain1:'Les taux de change internes varient de plus de 3× — le prix en USD est trompeur',
+    pain2:'Les coûts de Cache représentent 50%+ des dépenses réelles, absents des comparatifs',
+    pain3:'Impossible de savoir votre facture mensuelle avant qu\'il ne soit trop tard',
+    cta_start:'Commencer',cta_add:'＋ Ajouter une plateforme',
+    card_globals:'Paramètres globaux',card_platforms:'Configuration des plateformes',
+    label_rate:'Taux de change du marché',label_weight:'Poids entrée / sortie',label_monthly:'Utilisation mensuelle (millions de tokens)',
+    hint_usd:'1 USD =',hint_cny:'CNY',hint_input:'Entrée',hint_output:'Sortie',
+    scenario_empty:'Entrez l\'utilisation mensuelle pour afficher la colonne d\'estimation',scenario_fmt:'Mensuel = Entrée¥ × {mi}M + Sortie¥ × {mo}M',
+    col_name:'Plateforme',col_rate:'Taux ¥/$',col_input:'Entrée $/M',col_output:'Sortie $/M',
+    col_cread:'Cache Lect. $/M',col_cw5:'Écriture 5m $/M',col_cw1h:'Écriture 1h $/M',col_action:'Actions',
+    btn_add:'Ajouter une plateforme',btn_reset_card:'Restaurer les défauts',
+    res_title:'Résultats',res_desc:'Trié par prix moyen pondéré · Cliquer sur l\'en-tête pour trier',
+    btn_copy_md:'Copier Markdown',btn_csv:'Télécharger CSV',
+    th_platform:'Plateforme',th_input:'Entrée ¥/M',th_output:'Sortie ¥/M',
+    th_cread:'Cache Lect. ¥/M',th_cw5:'Cache Écr.5m ¥/M',th_cw1h:'Cache Écr.1h ¥/M',
+    th_weighted:'Moy. pondérée ¥/M',th_monthly:'Est. mensuelle ¥',
+    empty_state:'Aucune plateforme — cliquez sur "Ajouter une plateforme"',
+    insight_prefix:'Prix le plus bas : ',insight_suffix:' de l\'API officielle',
+    new_platform:'Nouvelle plateforme',del_title:'Supprimer',visit_site:'Visiter le site',
+    toast_md:'Tableau Markdown copié',toast_csv:'CSV téléchargé',toast_copied:'Copié',toast_restored:'Données par défaut restaurées',
+    faq_title:'Questions fréquentes',faq_desc:'Sur le choix des proxies Claude API, la facturation et la configuration',
+    faq_q1:'Quel proxy Claude API est le moins cher ?',
+    faq_a1:'En avril 2026, <a href="https://clawapi.fulitimes.com/register?ref=vJaWWr4T" target="_blank" rel="noopener">LingMao AI</a> offre le coût le plus bas avec un taux interne de ¥2.4/$, donnant une moyenne pondérée de ~¥45.6/M tokens pour Claude Opus 4.7 — environ 33% du prix officiel.',
+    faq_q2:'Qu\'est-ce que le taux de change interne ?',
+    faq_a2:'Les proxies se rechargent en CNY mais déduisent d\'un solde en USD. À ¥2.4/$ vous obtenez ~$41.7 pour ¥100 ; à ¥7/$ seulement ~$14.3 — presque 3× plus de tokens pour le même budget. Comparez toujours en ¥/M après conversion.',
+    faq_q3:'Quel est l\'impact réel de Prompt Cache sur les coûts ?',
+    faq_a3:'Claude Code envoie le system prompt complet à chaque requête. Sans cache, c\'est facturé au plein tarif. Avec Prompt Cache, les hits coûtent ~10% du prix d\'entrée, réduisant le coût effectif de 50–70%. <a href="https://clawapi.fulitimes.com/register?ref=vJaWWr4T" target="_blank" rel="noopener">LingMao AI</a> supporte le cache 5 min et 1 heure.',
+    faq_q4:'Comment connecter Claude Code à un proxy ?',
+    faq_a4:'Éditez <code>~/.claude/settings.json</code> :<br><br><code>{ "env": { "ANTHROPIC_BASE_URL": "url-proxy", "ANTHROPIC_AUTH_TOKEN": "votre-clé" } }</code><br><br>Remplacez par les valeurs de votre tableau de bord et redémarrez Claude Code.',
+    faq_q5:'Les proxies Claude API sont-ils sûrs ?',
+    faq_a5:'Risques principaux : ① Substitution de modèle ② APIs par rétro-ingénierie pouvant tomber à tout moment ③ Confidentialité des données via un tiers. Test rapide : demandez "quel modèle êtes-vous et quelle est votre date de coupure ?" ou comparez sur un problème mathématique à réponse connue.',
+  },
+  de:{
+    nav_brand:'Token-Preisrechner',nav_reset:'Zurücksetzen',nav_copy:'Tabelle kopieren',nav_csv:'CSV herunterladen',
+    hero_eyebrow:'Token · Preistransparenz',hero_title:'Token-Preis<br>Vergleich',
+    hero_sub:'Komplexe Abrechnung von OpenAI, Anthropic, Google & Co. einheitlich in ¥/M Tokens umrechnen',
+    pain1:'Interne Wechselkurse unterscheiden sich um das 3-Fache — USD-Preise sind irreführend',
+    pain2:'Cache-Kosten machen 50%+ der echten Ausgaben aus, tauchen aber in Vergleichen kaum auf',
+    pain3:'Die monatliche Abrechnung ist schwer vorherzusagen, bis es zu spät ist',
+    cta_start:'Loslegen',cta_add:'＋ Plattform hinzufügen',
+    card_globals:'Globale Einstellungen',card_platforms:'Plattformkonfiguration',
+    label_rate:'Markt-Wechselkurs',label_weight:'Eingabe / Ausgabe Gewichtung',label_monthly:'Monatliche Nutzung (Mio. Tokens)',
+    hint_usd:'1 USD =',hint_cny:'CNY',hint_input:'Eingabe',hint_output:'Ausgabe',
+    scenario_empty:'Monatliche Nutzung eingeben, um Kostenschätzung anzuzeigen',scenario_fmt:'Monatlich = Eingabe¥ × {mi}M + Ausgabe¥ × {mo}M',
+    col_name:'Plattform',col_rate:'Kurs ¥/$',col_input:'Eingabe $/M',col_output:'Ausgabe $/M',
+    col_cread:'Cache-Lesen $/M',col_cw5:'Schreiben 5m $/M',col_cw1h:'Schreiben 1h $/M',col_action:'Aktionen',
+    btn_add:'Plattform hinzufügen',btn_reset_card:'Standard wiederherstellen',
+    res_title:'Vergleichsergebnisse',res_desc:'Nach gewichtetem Durchschnittspreis sortiert · Klick auf Überschrift zum Sortieren',
+    btn_copy_md:'Markdown kopieren',btn_csv:'CSV herunterladen',
+    th_platform:'Plattform',th_input:'Eingabe ¥/M',th_output:'Ausgabe ¥/M',
+    th_cread:'Cache-Lesen ¥/M',th_cw5:'Cache-Schr.5m ¥/M',th_cw1h:'Cache-Schr.1h ¥/M',
+    th_weighted:'Gew. Durchschn. ¥/M',th_monthly:'Monatl. Schätzung ¥',
+    empty_state:'Keine Plattformen — klicken Sie oben auf "Plattform hinzufügen"',
+    insight_prefix:'Günstigster: ',insight_suffix:' der offiziellen API',
+    new_platform:'Neue Plattform',del_title:'Löschen',visit_site:'Website besuchen',
+    toast_md:'Markdown-Tabelle kopiert',toast_csv:'CSV heruntergeladen',toast_copied:'Kopiert',toast_restored:'Standarddaten wiederhergestellt',
+    faq_title:'Häufige Fragen',faq_desc:'Zur Auswahl von Claude API Proxys, Abrechnungslogik und Einrichtung',
+    faq_q1:'Welcher Claude API Proxy ist am günstigsten?',
+    faq_a1:'Stand April 2026 bietet <a href="https://clawapi.fulitimes.com/register?ref=vJaWWr4T" target="_blank" rel="noopener">LingMao AI</a> mit internem Kurs ¥2.4/$ die niedrigsten Kosten — gewichteter Durchschnitt ~¥45.6/M Tokens für Claude Opus 4.7, ca. 33% des offiziellen API-Preises.',
+    faq_q2:'Was ist der interne Wechselkurs?',
+    faq_a2:'Proxys nehmen CNY-Einzahlungen, ziehen aber vom USD-Guthaben ab. Bei ¥2.4/$ erhalten Sie ~$41.7 für ¥100; bei ¥7/$ nur ~$14.3 — fast 3× mehr Tokens für dasselbe Budget. Vergleichen Sie immer nach Umrechnung in ¥/M.',
+    faq_q3:'Wie stark beeinflusst Prompt Cache die echten Kosten?',
+    faq_a3:'Claude Code sendet bei jeder Anfrage den vollständigen System-Prompt. Ohne Cache wird jedes Mal der volle Preis berechnet. Mit Prompt Cache kosten Cache-Hits ~10% des Eingabepreises, was die effektiven Kosten um 50–70% senkt. <a href="https://clawapi.fulitimes.com/register?ref=vJaWWr4T" target="_blank" rel="noopener">LingMao AI</a> unterstützt 5-Minuten- und 1-Stunden-Cache.',
+    faq_q4:'Wie verbinde ich Claude Code mit einem Proxy?',
+    faq_a4:'Bearbeiten Sie <code>~/.claude/settings.json</code>:<br><br><code>{ "env": { "ANTHROPIC_BASE_URL": "proxy-url", "ANTHROPIC_AUTH_TOKEN": "ihr-schlüssel" } }</code><br><br>Ersetzen Sie mit Werten aus Ihrem Dashboard und starten Sie Claude Code neu.',
+    faq_q5:'Sind Claude API Proxys sicher?',
+    faq_a5:'Hauptrisiken: ① Modell-Täuschung (günstigeres Modell eingesetzt) ② Reverse-engineered APIs können jederzeit ausfallen ③ Datenschutz bei Drittanbieter-Routing. Schnelltest: Fragen Sie "Welches Modell sind Sie und was ist Ihr Trainings-Cutoff?" oder vergleichen Sie Antworten bei einer Matheaufgabe mit bekannter Lösung.',
+  },
+  pt:{
+    nav_brand:'Calculadora de Preços Token',nav_reset:'Redefinir',nav_copy:'Copiar tabela',nav_csv:'Baixar CSV',
+    hero_eyebrow:'Token · Transparência de preços',hero_title:'Comparador de<br>Preços Token',
+    hero_sub:'Converta a faturação complexa da OpenAI, Anthropic, Google e outros em ¥/M tokens unificados',
+    pain1:'As taxas de câmbio internas variam mais de 3× — os preços em USD são enganosos',
+    pain2:'Os custos de Cache representam 50%+ dos gastos reais, mas raramente aparecem nas comparações',
+    pain3:'Impossível saber quanto vai pagar no final do mês antes que seja tarde demais',
+    cta_start:'Começar',cta_add:'＋ Adicionar plataforma',
+    card_globals:'Configurações globais',card_platforms:'Configuração de plataformas',
+    label_rate:'Taxa de câmbio do mercado',label_weight:'Peso entrada / saída',label_monthly:'Uso mensal (milhões de tokens)',
+    hint_usd:'1 USD =',hint_cny:'CNY',hint_input:'Entrada',hint_output:'Saída',
+    scenario_empty:'Insira o uso mensal para mostrar a coluna de estimativa de custo',scenario_fmt:'Mensal = Entrada¥ × {mi}M + Saída¥ × {mo}M',
+    col_name:'Plataforma',col_rate:'Taxa ¥/$',col_input:'Entrada $/M',col_output:'Saída $/M',
+    col_cread:'Cache Leit. $/M',col_cw5:'Escrita 5m $/M',col_cw1h:'Escrita 1h $/M',col_action:'Ações',
+    btn_add:'Adicionar plataforma',btn_reset_card:'Restaurar padrões',
+    res_title:'Resultados da comparação',res_desc:'Ordenado por preço médio ponderado · Clique no cabeçalho para ordenar',
+    btn_copy_md:'Copiar Markdown',btn_csv:'Baixar CSV',
+    th_platform:'Plataforma',th_input:'Entrada ¥/M',th_output:'Saída ¥/M',
+    th_cread:'Cache Leit. ¥/M',th_cw5:'Cache Escr.5m ¥/M',th_cw1h:'Cache Escr.1h ¥/M',
+    th_weighted:'Média ponderada ¥/M',th_monthly:'Est. mensal ¥',
+    empty_state:'Sem plataformas — clique em "Adicionar plataforma" acima',
+    insight_prefix:'Preço mais baixo: ',insight_suffix:' da API oficial',
+    new_platform:'Nova plataforma',del_title:'Excluir',visit_site:'Visitar site',
+    toast_md:'Tabela Markdown copiada',toast_csv:'CSV baixado',toast_copied:'Copiado',toast_restored:'Dados padrão restaurados',
+    faq_title:'Perguntas frequentes',faq_desc:'Sobre a escolha de proxies para Claude API, lógica de faturação e configuração',
+    faq_q1:'Qual proxy de Claude API é mais barato?',
+    faq_a1:'Em abril de 2026, <a href="https://clawapi.fulitimes.com/register?ref=vJaWWr4T" target="_blank" rel="noopener">LingMao AI</a> oferece o menor custo com taxa interna ¥2.4/$, com média ponderada de ~¥45.6/M tokens para Claude Opus 4.7 — cerca de 33% do preço oficial.',
+    faq_q2:'O que é a taxa de câmbio interna?',
+    faq_a2:'Os proxies aceitam recarga em CNY mas deduzem de saldo em USD. Com ¥2.4/$ obtém ~$41.7 por ¥100; com ¥7/$ apenas ~$14.3 — quase 3× mais tokens pelo mesmo orçamento. Compare sempre em ¥/M após conversão.',
+    faq_q3:'Qual o impacto real do Prompt Cache nos custos?',
+    faq_a3:'O Claude Code envia o system prompt completo em cada pedido. Sem cache, é cobrado o preço completo. Com Prompt Cache, os hits custam ~10% do preço de entrada, reduzindo o custo efetivo em 50–70%. <a href="https://clawapi.fulitimes.com/register?ref=vJaWWr4T" target="_blank" rel="noopener">LingMao AI</a> suporta cache de 5 min e 1 hora.',
+    faq_q4:'Como conectar o Claude Code a um proxy?',
+    faq_a4:'Edite <code>~/.claude/settings.json</code>:<br><br><code>{ "env": { "ANTHROPIC_BASE_URL": "url-proxy", "ANTHROPIC_AUTH_TOKEN": "sua-chave" } }</code><br><br>Substitua pelos valores do seu painel e reinicie o Claude Code.',
+    faq_q5:'Os proxies de Claude API são seguros?',
+    faq_a5:'Riscos principais: ① Substituição de modelo ② APIs de engenharia reversa que podem falhar ③ Privacidade de dados ao rotear por terceiros. Teste rápido: pergunte "que modelo é você e qual é a sua data de corte?" ou compare numa pergunta de matemática com resposta conhecida.',
+  },
+};
+
+let currentLang = 'zh';
+
+function t(key) {
+  return (TRANSLATIONS[currentLang] || TRANSLATIONS.zh)[key] || TRANSLATIONS.zh[key] || key;
+}
+
+function detectLang() {
+  const saved = localStorage.getItem('api_calc_lang');
+  if (saved && TRANSLATIONS[saved]) return saved;
+  const code = (navigator.language || 'zh').split('-')[0].toLowerCase();
+  return TRANSLATIONS[code] ? code : 'zh';
+}
+
+function applyLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('api_calc_lang', lang);
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+  renderFAQ();
+  renderAll();
+  document.querySelectorAll('.lang-opt').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  document.getElementById('langBtn').textContent = (LANGS_META.find(l => l.code === lang)?.label || lang) + ' ▾';
+}
+
+function renderFAQ() {
+  const c = document.getElementById('faqContainer');
+  if (!c) return;
+  c.innerHTML = `
+    <h2>${t('faq_title')}</h2>
+    <p class="faq-desc">${t('faq_desc')}</p>
+    ${[1,2,3,4,5].map(i => `
+    <details class="faq-item">
+      <summary>${t('faq_q'+i)}</summary>
+      <div class="faq-body">${t('faq_a'+i)}</div>
+    </details>`).join('')}`;
+}
+
+function buildLangMenu() {
+  const menu = document.getElementById('langMenu');
+  if (!menu) return;
+  menu.innerHTML = LANGS_META.map(l =>
+    `<button class="lang-opt${l.code===currentLang?' active':''}" data-lang="${l.code}" onclick="applyLang('${l.code}');toggleLangMenu()">${l.label}</button>`
+  ).join('');
+}
+
+function toggleLangMenu() {
+  const menu = document.getElementById('langMenu');
+  if (!menu) return;
+  menu.classList.toggle('open');
+}
+
+document.addEventListener('click', e => {
+  const sw = document.querySelector('.lang-switcher');
+  if (sw && !sw.contains(e.target)) document.getElementById('langMenu')?.classList.remove('open');
+});
+
+// ─── State ────────────────────────────────────────────────────────────────────
+let platforms = [];
+let nextId = 100;
+let sortCol = 'weighted';
+let sortAsc = true;
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+function init() {
+  const saved = localStorage.getItem('api_calc_platforms');
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      platforms = parsed.platforms || DEFAULT_PLATFORMS;
+      if (platforms.length === 0) platforms = JSON.parse(JSON.stringify(DEFAULT_PLATFORMS));
+      nextId = parsed.nextId || 100;
+      platforms.forEach(p => {
+        if (!p.url) { const def = DEFAULT_PLATFORMS.find(d => d.id === p.id); if (def) p.url = def.url; }
+      });
+    } catch(e) { platforms = JSON.parse(JSON.stringify(DEFAULT_PLATFORMS)); }
+  } else {
+    platforms = JSON.parse(JSON.stringify(DEFAULT_PLATFORMS));
+  }
+  currentLang = detectLang();
+  buildLangMenu();
+  applyLang(currentLang);
+  bindGlobals();
+}
+
+function save() { localStorage.setItem('api_calc_platforms', JSON.stringify({ platforms, nextId })); }
+
+function resetToDefaults() {
+  platforms = JSON.parse(JSON.stringify(DEFAULT_PLATFORMS));
+  nextId = 100;
+  save();
+  renderAll();
+}
+
+// ─── Globals ──────────────────────────────────────────────────────────────────
+function bindGlobals() {
+  document.getElementById('marketRate').addEventListener('input', updateResults);
+  document.getElementById('inputWeight').addEventListener('input', () => {
+    const v = Math.max(0, Math.min(100, parseInt(document.getElementById('inputWeight').value) || 0));
+    document.getElementById('inputWeight').value = v;
+    document.getElementById('outputWeight').value = 100 - v;
+    updateResults();
+  });
+  document.getElementById('monthlyInput').addEventListener('input', updateResults);
+  document.getElementById('monthlyOutput').addEventListener('input', updateResults);
+}
+
+function getInputWeight()  { return (parseInt(document.getElementById('inputWeight').value)  || 30) / 100; }
+function getOutputWeight() { return 1 - getInputWeight(); }
+function getMonthlyInput() { return parseFloat(document.getElementById('monthlyInput').value)  || 0; }
+function getMonthlyOutput(){ return parseFloat(document.getElementById('monthlyOutput').value) || 0; }
+function getMarketRate()   { return parseFloat(document.getElementById('marketRate').value)    || 7.27; }
+
+// ─── Price Calculation ────────────────────────────────────────────────────────
+function toCNY(p, currency, rate) {
+  if (p === '' || p === null || p === undefined || isNaN(parseFloat(p))) return null;
+  const v = parseFloat(p);
+  return currency === 'USD' ? v * rate : v;
+}
+
+function calcPlatform(p) {
+  const r = p.rate || getMarketRate(), cur = p.currency || 'USD';
+  const inputCNY       = toCNY(p.input,       cur, r);
+  const outputCNY      = toCNY(p.output,      cur, r);
+  const cacheReadCNY   = toCNY(p.cacheRead,   cur, r);
+  const cacheWrite5CNY = toCNY(p.cacheWrite5, cur, r);
+  const cacheWrite1hCNY= toCNY(p.cacheWrite1h,cur, r);
+  const iw = getInputWeight(), ow = getOutputWeight();
+  const weighted = (inputCNY !== null && outputCNY !== null) ? inputCNY * iw + outputCNY * ow : null;
+  const mi = getMonthlyInput(), mo = getMonthlyOutput();
+  const monthly = (inputCNY !== null && outputCNY !== null && (mi > 0 || mo > 0)) ? inputCNY * mi + outputCNY * mo : null;
+  return { inputCNY, outputCNY, cacheReadCNY, cacheWrite5CNY, cacheWrite1hCNY, weighted, monthly };
+}
+
+// ─── Render ───────────────────────────────────────────────────────────────────
+function renderAll() { renderPlatforms(); updateResults(); }
+
+function renderPlatforms() {
+  const grid = document.getElementById('platformsGrid');
+  const header = grid.querySelector('.plist-header');
+  grid.innerHTML = '';
+  grid.appendChild(header);
+  // re-apply header translations
+  const spans = header.querySelectorAll('[data-i18n]');
+  spans.forEach(el => { el.textContent = t(el.dataset.i18n); });
+  platforms.forEach(p => grid.appendChild(buildRow(p)));
+}
+
+function buildRow(p) {
+  const wrap = document.createElement('div');
+  wrap.className = 'prow';
+  wrap.dataset.id = p.id;
+  const isUSD = (p.currency || 'USD') === 'USD';
+  wrap.innerHTML = `
+    <div class="prow-main">
+      <span class="prow-drag">⠿</span>
+      <div class="pcell" style="display:flex;align-items:center;gap:4px">
+        <input type="text" value="${esc(p.name)}" placeholder="${t('new_platform')}" style="flex:1;min-width:0"
+          oninput="updateField(${p.id},'name',this.value)">
+        ${p.url ? `<a class="prow-url-btn" href="${esc(p.url)}" target="_blank" rel="noopener" title="${t('visit_site')}">↗</a>` : ''}
+      </div>
+      <div class="pcell-cur">
+        <div class="cur-seg">
+          <input type="radio" id="usd_${p.id}" name="cur_${p.id}" value="USD" ${isUSD?'checked':''}
+            onchange="updateField(${p.id},'currency','USD');updateCurUI(${p.id});updateResults()">
+          <label for="usd_${p.id}">USD</label>
+          <input type="radio" id="cny_${p.id}" name="cur_${p.id}" value="CNY" ${!isUSD?'checked':''}
+            onchange="updateField(${p.id},'currency','CNY');updateCurUI(${p.id});updateResults()">
+          <label for="cny_${p.id}">CNY</label>
+        </div>
+        <div class="rate-mini" id="rate_${p.id}" style="${isUSD?'':'display:none'}">
+          <span>¥</span>
+          <input type="number" value="${p.rate||7.27}" step="0.01" min="1" max="20"
+            onchange="updateField(${p.id},'rate',parseFloat(this.value)||7.27);updateResults()">
+          <span>/$</span>
+        </div>
+      </div>
+      <div class="pcell"><input type="number" value="${p.input??''}" placeholder="—" step="0.01" min="0" oninput="updateField(${p.id},'input',this.value);updateResults()"></div>
+      <div class="pcell"><input type="number" value="${p.output??''}" placeholder="—" step="0.01" min="0" oninput="updateField(${p.id},'output',this.value);updateResults()"></div>
+      <div class="pcell"><input type="number" value="${p.cacheRead??''}" placeholder="—" step="0.001" min="0" oninput="updateField(${p.id},'cacheRead',this.value);updateResults()"></div>
+      <div class="pcell"><input type="number" value="${p.cacheWrite5??''}" placeholder="—" step="0.001" min="0" oninput="updateField(${p.id},'cacheWrite5',this.value);updateResults()"></div>
+      <div class="pcell"><input type="number" value="${p.cacheWrite1h??''}" placeholder="—" step="0.001" min="0" oninput="updateField(${p.id},'cacheWrite1h',this.value);updateResults()"></div>
+      <div class="prow-actions">
+        <button class="del-btn" title="${t('del_title')}" onclick="deletePlatform(${p.id})">✕</button>
+      </div>
+    </div>`;
+  return wrap;
+}
+
+function updateCurUI(id) {
+  const p = platforms.find(x => x.id === id);
+  if (!p) return;
+  const rateEl = document.getElementById('rate_' + id);
+  if (rateEl) rateEl.style.display = p.currency === 'USD' ? '' : 'none';
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function updateField(id, field, value) {
+  const p = platforms.find(x => x.id === id);
+  if (!p) return;
+  p[field] = value;
+  save();
+}
+
+function deletePlatform(id) {
+  platforms = platforms.filter(x => x.id !== id);
+  if (platforms.length === 0) {
+    platforms = JSON.parse(JSON.stringify(DEFAULT_PLATFORMS));
+    toast(t('toast_restored'));
+  }
+  save();
+  renderAll();
+}
+
+function addPlatform() {
+  const newP = {
+    id: nextId++, name: t('new_platform'), currency: 'USD',
+    rate: getMarketRate(), input: '', output: '',
+    cacheRead: '', cacheWrite5: '', cacheWrite1h: '',
+    collapsed: false,
+  };
+  platforms.push(newP);
+  save();
+  renderPlatforms();
+  updateResults();
+}
+
+// ─── Results Table ────────────────────────────────────────────────────────────
+function updateResults() {
+  const mi = getMonthlyInput(), mo = getMonthlyOutput();
+  const showMonthly = mi > 0 || mo > 0;
+  const scenarioEl = document.getElementById('scenarioHint');
+  if (scenarioEl) scenarioEl.textContent = showMonthly
+    ? t('scenario_fmt').replace('{mi}', mi).replace('{mo}', mo)
+    : t('scenario_empty');
+
+  const rows = platforms.map(p => ({ ...p, calc: calcPlatform(p) }));
+  rows.sort((a, b) => {
+    let va, vb;
+    if      (sortCol === 'weighted') { va = a.calc.weighted ?? Infinity; vb = b.calc.weighted ?? Infinity; }
+    else if (sortCol === 'input')    { va = a.calc.inputCNY ?? Infinity; vb = b.calc.inputCNY ?? Infinity; }
+    else if (sortCol === 'output')   { va = a.calc.outputCNY ?? Infinity; vb = b.calc.outputCNY ?? Infinity; }
+    else if (sortCol === 'monthly')  { va = a.calc.monthly ?? Infinity; vb = b.calc.monthly ?? Infinity; }
+    else                             { va = a.name; vb = b.name; }
+    return sortAsc ? (va > vb ? 1 : -1) : (va < vb ? 1 : -1);
+  });
+
+  const validW = rows.map(r => r.calc.weighted).filter(v => v !== null);
+  const minW = validW.length ? Math.min(...validW) : null;
+  const maxW = validW.length ? Math.max(...validW) : null;
+  const iw = Math.round(getInputWeight()*100), ow = 100 - iw;
+
+  document.getElementById('resultsHead').innerHTML = `<tr>
+    <th>#</th>
+    <th>${t('th_platform')}</th>
+    <th class="sortable ${sortCol==='input'?'sort-active':''}" onclick="setSort('input')">${t('th_input')} <span class="sort-icon">${sortArrow('input')}</span></th>
+    <th class="sortable ${sortCol==='output'?'sort-active':''}" onclick="setSort('output')">${t('th_output')} <span class="sort-icon">${sortArrow('output')}</span></th>
+    <th>${t('th_cread')}</th>
+    <th>${t('th_cw5')}</th>
+    <th>${t('th_cw1h')}</th>
+    <th class="sortable ${sortCol==='weighted'?'sort-active':''}" onclick="setSort('weighted')">${t('th_weighted')} <span style="font-weight:400;opacity:.6">(${iw}/${ow})</span> <span class="sort-icon">${sortArrow('weighted')}</span></th>
+    ${showMonthly ? `<th class="sortable ${sortCol==='monthly'?'sort-active':''}" onclick="setSort('monthly')">${t('th_monthly')} <span class="sort-icon">${sortArrow('monthly')}</span></th>` : ''}
+  </tr>`;
+
+  const insightEl = document.getElementById('resultInsight');
+  if (insightEl) {
+    const top = rows[0];
+    if (top && top.calc.weighted !== null) {
+      const iwf = getInputWeight(), owf = getOutputWeight();
+      const officialW = (5 * iwf + 25 * owf) * getMarketRate();
+      const pct = Math.round(top.calc.weighted / officialW * 100);
+      const nameHtml = top.url
+        ? `<a href="${top.url}" target="_blank" rel="noopener">${esc(top.name)}</a>`
+        : `<strong>${esc(top.name)}</strong>`;
+      insightEl.innerHTML = `${t('insight_prefix')}${nameHtml} · <strong>${fmt(top.calc.weighted)}/M</strong>${t('insight_suffix')} <strong style="color:#30d158">${pct}%</strong>`;
+    } else { insightEl.innerHTML = ''; }
+  }
+
+  const body = document.getElementById('resultsBody');
+  if (rows.length === 0) {
+    body.innerHTML = `<tr><td colspan="10" class="empty-state">${t('empty_state')}</td></tr>`;
+    return;
+  }
+
+  const medals = ['🥇','🥈','🥉'];
+  body.innerHTML = rows.map((r, i) => {
+    const c = r.calc;
+    const isMin = c.weighted !== null && c.weighted === minW && validW.length > 1;
+    const isMax = c.weighted !== null && c.weighted === maxW && validW.length > 1;
+    const wClass = isMin ? 'price-best' : isMax ? 'price-worst' : '';
+    return `<tr>
+      <td class="rank-cell">${medals[i] || (i+1)}</td>
+      <td>${r.url
+        ? `<a class="platform-name platform-link" href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.name)}<span class="ext-icon">↗</span></a>`
+        : `<span class="platform-name">${esc(r.name)}</span>`}</td>
+      <td class="num">${fmt(c.inputCNY)}</td>
+      <td class="num">${fmt(c.outputCNY)}</td>
+      <td class="num">${fmt(c.cacheReadCNY,'—')}</td>
+      <td class="num">${fmt(c.cacheWrite5CNY,'—')}</td>
+      <td class="num">${fmt(c.cacheWrite1hCNY,'—')}</td>
+      <td class="num ${wClass}">${fmt(c.weighted)}</td>
+      ${showMonthly ? `<td class="num">${c.monthly!==null?'¥'+c.monthly.toFixed(2):'<span class="price-na">—</span>'}</td>` : ''}
+    </tr>`;
+  }).join('');
+}
+
+function fmt(v, fallback='') {
+  if (v === null || v === undefined) return `<span class="price-na">${fallback}</span>`;
+  return '¥' + v.toFixed(2);
+}
+
+function setSort(col) {
+  if (sortCol === col) sortAsc = !sortAsc; else { sortCol = col; sortAsc = true; }
+  updateResults();
+}
+function sortArrow(col) { if (sortCol !== col) return '↕'; return sortAsc ? '↑' : '↓'; }
+
+// ─── Export ───────────────────────────────────────────────────────────────────
+function buildTableData() {
+  const mi = getMonthlyInput(), mo = getMonthlyOutput();
+  const showMonthly = mi > 0 || mo > 0;
+  const rows = platforms.map(p => ({ ...p, calc: calcPlatform(p) }));
+  rows.sort((a, b) => (a.calc.weighted ?? Infinity) - (b.calc.weighted ?? Infinity));
+  let header = [t('th_platform'),'Currency','Rate ¥/$',t('th_input'),t('th_output'),t('th_cread'),t('th_cw5'),t('th_cw1h'),t('th_weighted')];
+  if (showMonthly) header.push(t('th_monthly'));
+  const dataRows = rows.map(r => {
+    const c = r.calc;
+    const row = [r.name, r.currency||'USD', r.currency==='USD'?(r.rate||'7.27'):'—',
+      c.inputCNY?.toFixed(2)??'', c.outputCNY?.toFixed(2)??'',
+      c.cacheReadCNY?.toFixed(3)??'—', c.cacheWrite5CNY?.toFixed(2)??'—',
+      c.cacheWrite1hCNY?.toFixed(2)??'—', c.weighted?.toFixed(2)??''];
+    if (showMonthly) row.push(c.monthly?.toFixed(2)??'—');
+    return row;
+  });
+  return { header, dataRows };
+}
+
+function exportMarkdown() {
+  const { header, dataRows } = buildTableData();
+  const colWidths = header.map((h, i) => Math.max(h.length, ...dataRows.map(r => String(r[i]).length)));
+  const pad = (s, w) => String(s).padEnd(w);
+  const md = [
+    '| ' + header.map((h,i) => pad(h, colWidths[i])).join(' | ') + ' |',
+    '| ' + colWidths.map(w => '-'.repeat(w)).join(' | ') + ' |',
+    ...dataRows.map(r => '| ' + r.map((v,i) => pad(v, colWidths[i])).join(' | ') + ' |')
+  ].join('\n');
+  navigator.clipboard.writeText(md).then(() => toast(t('toast_md'))).catch(() => fallbackCopy(md));
+}
+
+function exportCSV() {
+  const { header, dataRows } = buildTableData();
+  const csv = [header, ...dataRows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'token_price.csv';
+  a.click();
+  toast(t('toast_csv'));
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+  document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+  document.body.removeChild(ta); toast(t('toast_copied'));
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+init();
+</script>
+</body>
+</html>
