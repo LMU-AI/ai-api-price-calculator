@@ -86,6 +86,14 @@ open index.html   # macOS
 
 ---
 
+## 姐妹工具
+
+- [relay-pricing-decode](https://github.com/LMU-AI/relay-pricing-decode)：判断中转平台¥价格记账口径（1元=1美元虚拟记账 vs 真实汇率换算），本工具的价格数字是否可信可以先用它验证
+- [relay-latency-check](https://github.com/LMU-AI/relay-latency-check)：实测中转平台首字节延迟 TTFT，价格便宜不代表体感好
+- [check-claude-api](https://github.com/LMU-AI/check-claude-api)：检测接口是不是真官方协议、Cache 是否真支持
+
+---
+
 ## 技术说明
 
 - 单文件 HTML，约 1000 行
