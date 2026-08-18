@@ -72,7 +72,7 @@ open index.html   # macOS
 
 | 平台 | 汇率/折扣 | 输入 ¥/M | 输出 ¥/M | 缓存读 ¥/M | 加权均价 ¥/M |
 |------|----------|---------|---------|-----------|------------|
-| [灵眸AI（按量）](https://api.lmuai.com/g/vJaWWr4T) | ×1.2* | 6.00 | 30.00 | 0.60 | **22.80** |
+| [灵眸AI（按量）](https://api.lmuai.ai/g/vJaWWr4T) | ×1.2* | 6.00 | 30.00 | 0.60 | **22.80** |
 | [poloapi](https://aihubmix.com/?aff=hC5M) | 7.0 | 32.90 | 163.10 | 3.29 | 124.04 |
 | [laozhang.ai](https://api.laozhang.ai/register/?aff_code=ZlNM) | 7.0 | 35.00 | 175.00 | 3.50 | 133.00 |
 | [apiyi](https://api.apiyi.com/) | 7.0 | 35.00 | 175.00 | 3.50 | 133.00 |
